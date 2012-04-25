@@ -8,10 +8,8 @@ class Submissions extends \PSU\Collection {
 	public function get() {
 		$sql = "
 			SELECT *
-				FROM gobtpac
-			 WHERE gobtpac_external_user IN ('mtbatchelder', 'max', 'zbtirrell', 'djbramer', 'pdmanseau')
-		";
-		
-		return \PSU::db('banner')->Execute( $sql );
+				FROM sa_submissions
+			 WHERE pidm=:pidm";
+		return \PSU::db('banner')->Execute( $sql);
 	}//end get
 }//end class \PSU\SubmissionApproval\Submissions

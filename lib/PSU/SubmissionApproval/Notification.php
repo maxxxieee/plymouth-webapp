@@ -2,33 +2,12 @@
 
 namespace PSU\SubmissionApproval;
 
-class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
+class Notification extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 
-		public static function get_institution($submission_id) {
-		$query="SELECT stvsbgi_desc
-							FROM stvsbgi,
-									 sa_submission_meta
-						 WHERE submission_id=:submission_id
-						   AND meta_key_id=2
-               AND stvsbgi_code = rtrim(meta_value)";
-		$institution=\PSU::db('banner')->GetOne($query, array('submission_id'=>$submission_id));
-		return $institution;
-		}//end get_institution
-
-		public static function get($submission_id) {
-		$args = array(
-			'submission_id'=>$submission_id,
-			);
-		$sql = "SELECT k.name meta_name,
-									 a.meta_value meta_value
-							FROM 
-									 sa_submission_meta a,
-									 sa_meta_keys k
-						 WHERE a.submission_id = :submission_id
-               AND a.meta_key_id=k.id
-					ORDER BY meta_key_id";
-		$items = \PSU::db('banner')->GetAll( $sql, $args );
-		return $items;
+	public static function get($id) {
+		$sql = "SELECT * FROM sa_notifications WHERE id = :the_id";
+		$row = \PSU::db('banner')->GetRow( $sql, array('the_id' => $id) );
+		return new static( $row );
 	}
 
 	public function delete() {
@@ -36,6 +15,7 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 		echo "I'm deleting myself!";
 	}//end delete
 
+	
 	/**
 	 * Helper to determine whether we are querying based on a numeric
 	 * row ID or a slug.
@@ -44,6 +24,9 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 		if( is_numeric($ident) ) {
 						$field = 'id';
 						$value = (int)$ident;
+		} else {
+						$field = 'slug';
+						$value = $ident;
 		}
 					return (object)array( 'field' => $field, 'value' => $value );
 	}//end _get_field
@@ -57,7 +40,7 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 		$args  = array( 'key' => $field->value );
 		$sql = "
 						SELECT *
-						FROM psu.sa_submission_meta
+						FROM psu.sa_notifications
 						WHERE $where
 		";
 		$row = \PSU::db('banner')->GetRow( $sql, $args );
@@ -65,20 +48,19 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 	}//end row
 
 	/**
-	 * save MetaValue data
+	 * save submission data
 	 *
 	 * @param $method \b method of saving. insert or merge
 	 */
 	public function save( $method = 'merge' ) {
-		$this->validate('sa_submission_meta');
+		$this->validate('sa_notifications');
 
 		$args = $this->_prep_args();
-
-		$fields = $this->_prep_fields( 'sa_submission_meta', $args, true, false );
+		$fields = $this->_prep_fields( 'sa_notifications', $args, true, false );
 
 		$sql_method = '_' . $method . '_sql';
-		$sql = $this->$sql_method( 'sa_submission_meta', $fields );
-
+		$sql = $this->$sql_method( 'sa_notifications', $fields );
+		
 		return \PSU::db('banner')->Execute( $sql, $args );
 	}//end save
 
@@ -89,9 +71,6 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 		$on = array(
 						'the_id',
 						'submission_id',
-						'source_pidm',
-						'meta_key_id',
-						'meta_value'
 		);
 
 		return parent::_merge_sql( $table, $fields, $on, false );
@@ -105,14 +84,14 @@ class MetaValue extends \PSU_Banner_DataObject implements \PSU\ActiveRecord {
 		$args = array(
 						'the_id' => $this->id,
 						'submission_id' => $this->submission_id,
-						'source_pidm' =>$this->source_pidm,
-						'meta_key_id' =>$this->meta_key_id,
-						'meta_value' =>$this->meta_value
+						'code' => $this->code,
+						'date_sent' => $this->date_sent ? \PSU::db('banner')->BindDate( $this->date_sent) : null,
 		);
+		$args['date_sent'] = $args['date_sent'] !== 'null' ? $args['date_sent'] : PSU::db('banner')->BindDate( time() );
 
 		return $args;
 	}//end _prep_args
 
 
 
-}//end class \PSU\SubmissionApproval\MetaValue
+}//end class \PSU\SubmissionApproval\Submission

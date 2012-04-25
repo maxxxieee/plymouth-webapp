@@ -1,0 +1,67 @@
+@font-face {
+        font-family: 'IconicStroke';
+        src: url(/webapp/style/fonts/iconic_stroke-webfont.eot);
+        src: local('?'), url(/webapp/style/fonts/iconic_stroke-webfont.woff) format('woff'), url(/webapp/style/fonts/iconic_stroke-webfont.ttf) format('truetype');
+        font-weight: normal;
+        font-style: normal;
+}
+
+table.grid td.middle {
+        vertical-align: middle;
+}
+
+.wide {
+        width: 100%;
+}
+
+.show-siblings {
+        cursor: pointer;
+}
+
+.collapse {
+        display: none;
+}
+
+/* boxes get some special collapse behavior */
+.box.collapse {
+        display: block;
+}
+
+.box.collapse .body {
+        display: none;
+}
+
+#save-changes {
+        overflow: auto;
+        padding-bottom: .3em;
+}
+
+.box.sticky {
+        position: fixed;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+#save-changes button {
+        position: relative;
+}
+
+#save-changes button::before {
+        content: "p";
+        font-family: "IconicStroke";
+        font-size: 1.2em;
+        vertical-align: middle;
+        margin: 0 0.5em 0 0;
+        position: relative;
+        top: -6px;
+}
+
+#save-changes button.primary::before,
+#save-changes button.saved::before {
+        content: "y";
+}
+
+#save-changes button.pending::before {
+        content: "c";
+}
